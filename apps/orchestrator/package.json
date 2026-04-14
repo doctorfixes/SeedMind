@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@seedmind/shared": "*",
+    "@seedmind/shared": "file:../../packages/shared",
     "node-fetch": "^3.3.2"
   }
 }

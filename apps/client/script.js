@@ -2,11 +2,12 @@
 'use strict';
 
 // ─── Configuration ────────────────────────────────────────────────────────────
-// ORCHESTRATOR_URL is injected at build time by Vercel env vars.
-// Falls back to a relative path for local development.
+// ORCHESTRATOR_URL defaults to /ask on the same Vercel deployment (unified
+// monorepo). Override by setting window.ORCHESTRATOR_URL before this script
+// loads (e.g. for a standalone orchestrator deployment).
 const ORCHESTRATOR_URL =
   (typeof window !== 'undefined' && window.ORCHESTRATOR_URL) ||
-  'https://seedmind-orchestrator.vercel.app/ask';
+  '/ask';
 
 const MAX_MESSAGE_LENGTH = 4000;
 const CHAR_WARN_THRESHOLD = 3600;
