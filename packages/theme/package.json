@@ -1,0 +1,10 @@
+{
+  "name": "@seedmind/theme",
+  "version": "1.0.0",
+  "description": "SeedMind design tokens — colors, spacing, typography, shadows, motion",
+  "main": "index.js",
+  "files": [
+    "tokens.css",
+    "index.js"
+  ]
+}
