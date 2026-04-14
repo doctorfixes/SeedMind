@@ -144,6 +144,9 @@ module.exports = async function handler(req, res) {
 
   // Prefer client-supplied key (BYOK) over the server env var
   const effectiveLlmKey = (clientLlmKey && clientLlmKey.trim()) || LLM_KEY;
+  if (!effectiveLlmKey) {
+    return res.status(503).json({ error: 'No LLM API key configured. Please provide one in Settings.' });
+  }
 
   try {
     // 1. Load growth ring

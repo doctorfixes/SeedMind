@@ -112,6 +112,7 @@ function openSettings() {
 }
 
 function closeSettings() {
+  setKeyVisible(false);
   settingsPanel.hidden = true;
   settingsBtn.setAttribute('aria-expanded', 'false');
   settingsBtn.focus();
