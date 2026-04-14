@@ -134,6 +134,10 @@
   --shadow-md: 0 2px 12px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 4px 24px rgba(0, 0, 0, 0.12);
 
+  /* ── Component sizes ── */
+  --size-touch-target: 44px;
+  --size-btn-md: 42px;
+
   /* ── Motion ── */
   --motion-duration-fast:  120ms;
   --motion-duration-base:  200ms;

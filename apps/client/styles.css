@@ -157,7 +157,7 @@ html, body {
   color: var(--color-text-primary);
   background: var(--color-bg-subtle);
   transition: var(--transition-colors), var(--transition-shadow);
-  min-height: 44px;
+  min-height: var(--size-touch-target);
 }
 
 .user-input::placeholder {
@@ -188,8 +188,8 @@ html, body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 42px;
-  height: 42px;
+  width: var(--size-btn-md);
+  height: var(--size-btn-md);
   border: none;
   border-radius: var(--radius-full);
   background: var(--color-primary-600);

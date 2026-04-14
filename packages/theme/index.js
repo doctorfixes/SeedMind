@@ -100,7 +100,7 @@ const typography = {
 
   'leading-tight':  '1.25',
   'leading-normal': '1.5',
-  'leading-relaxed':'1.625',
+  'leading-relaxed': '1.625',
 
   'tracking-tight':  '-0.01em',
   'tracking-normal': '0',
@@ -133,4 +133,10 @@ const motion = {
   'motion-easing-out':      'cubic-bezier(0, 0, 0.2, 1)',
 };
 
-module.exports = { palette, colors, spacing, typography, radius, shadows, motion };
+// ─── Component Sizes ─────────────────────────────────────────────────────────
+const sizes = {
+  'size-touch-target': '44px',
+  'size-btn-md':       '42px',
+};
+
+module.exports = { palette, colors, spacing, typography, radius, shadows, motion, sizes };
