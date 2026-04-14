@@ -36,6 +36,7 @@ html, body {
 
 /* ─── Header ────────────────────────────────────────────────────────────────── */
 .app-header {
+  position: relative;
   padding: var(--space-5) var(--space-6) var(--space-4);
   background: var(--color-header-bg);
   color: var(--color-header-text);
@@ -54,6 +55,149 @@ html, body {
   margin-top: var(--space-1);
   line-height: var(--leading-normal);
 }
+
+.settings-btn {
+  position: absolute;
+  top: 50%;
+  right: var(--space-4);
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-header-text);
+  opacity: 0.7;
+  cursor: pointer;
+  transition: var(--transition-colors), opacity 0.15s;
+}
+
+.settings-btn:hover { opacity: 1; background: color-mix(in srgb, var(--color-header-text) 12%, transparent); }
+.settings-btn:focus-visible { outline: 2px solid var(--color-border-focus); outline-offset: 2px; }
+.settings-btn[aria-expanded="true"] { opacity: 1; background: color-mix(in srgb, var(--color-header-text) 18%, transparent); }
+
+/* ─── Settings Panel ────────────────────────────────────────────────────────── */
+.settings-panel {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.settings-inner {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.settings-title {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.settings-label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.secret-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.settings-input {
+  flex: 1;
+  border: 1.5px solid var(--color-border-input);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  background: var(--color-bg-subtle);
+  transition: var(--transition-colors), var(--transition-shadow);
+  min-height: var(--size-touch-target);
+}
+
+.settings-input:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-border-focus) 20%, transparent);
+}
+
+.settings-input:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 1px;
+}
+
+.toggle-secret-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--color-border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: var(--transition-colors);
+}
+
+.toggle-secret-btn:hover { color: var(--color-text-primary); border-color: var(--color-border-focus); }
+.toggle-secret-btn:focus-visible { outline: 2px solid var(--color-border-focus); outline-offset: 2px; }
+
+.settings-hint {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+.settings-actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.settings-save-btn,
+.settings-cancel-btn {
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-colors);
+  border: none;
+}
+
+.settings-save-btn {
+  background: var(--color-primary-600);
+  color: var(--color-text-inverse);
+}
+
+.settings-save-btn:hover { background: var(--color-primary-800); }
+.settings-save-btn:focus-visible { outline: 2px solid var(--color-border-focus); outline-offset: 2px; }
+
+.settings-cancel-btn {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1.5px solid var(--color-border);
+}
+
+.settings-cancel-btn:hover { color: var(--color-text-primary); border-color: var(--color-border-focus); }
+.settings-cancel-btn:focus-visible { outline: 2px solid var(--color-border-focus); outline-offset: 2px; }
 
 /* ─── Main / Chat Window ────────────────────────────────────────────────────── */
 .app-main {

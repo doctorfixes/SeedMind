@@ -12,6 +12,7 @@ const ORCHESTRATOR_URL =
 const MAX_MESSAGE_LENGTH = 4000;
 const CHAR_WARN_THRESHOLD = 3600;
 const CHAR_DANGER_THRESHOLD = 3900;
+const LLM_KEY_STORAGE_KEY = 'seedmind_llm_key';
 
 // ─── Persistent user ID ───────────────────────────────────────────────────────
 function getUserId() {
@@ -23,12 +24,31 @@ function getUserId() {
   return id;
 }
 
+// ─── Settings helpers ─────────────────────────────────────────────────────────
+function getLlmKey() {
+  return localStorage.getItem(LLM_KEY_STORAGE_KEY) || '';
+}
+
+function saveLlmKey(key) {
+  if (key) {
+    localStorage.setItem(LLM_KEY_STORAGE_KEY, key);
+  } else {
+    localStorage.removeItem(LLM_KEY_STORAGE_KEY);
+  }
+}
+
 // ─── DOM helpers ─────────────────────────────────────────────────────────────
-const chatWindow = document.getElementById('chatWindow');
-const inputForm  = document.getElementById('inputForm');
-const userInput  = document.getElementById('userInput');
-const sendBtn    = document.getElementById('sendBtn');
-const charCount  = document.getElementById('charCount');
+const chatWindow    = document.getElementById('chatWindow');
+const inputForm     = document.getElementById('inputForm');
+const userInput     = document.getElementById('userInput');
+const sendBtn       = document.getElementById('sendBtn');
+const charCount     = document.getElementById('charCount');
+const settingsBtn   = document.getElementById('settingsBtn');
+const settingsPanel = document.getElementById('settingsPanel');
+const llmKeyInput   = document.getElementById('llmKeyInput');
+const toggleLlmKey  = document.getElementById('toggleLlmKey');
+const saveSettingsBtn   = document.getElementById('saveSettingsBtn');
+const cancelSettingsBtn = document.getElementById('cancelSettingsBtn');
 
 function appendMessage(role, text, isTyping = false) {
   const wrapper = document.createElement('div');
@@ -81,6 +101,57 @@ function updateCharCount() {
   }
 }
 
+// ─── Settings panel ───────────────────────────────────────────────────────────
+function openSettings() {
+  llmKeyInput.value = getLlmKey();
+  // Reset show/hide to hidden state when opening
+  setKeyVisible(false);
+  settingsPanel.hidden = false;
+  settingsBtn.setAttribute('aria-expanded', 'true');
+  llmKeyInput.focus();
+}
+
+function closeSettings() {
+  settingsPanel.hidden = true;
+  settingsBtn.setAttribute('aria-expanded', 'false');
+  settingsBtn.focus();
+}
+
+function setKeyVisible(visible) {
+  llmKeyInput.type = visible ? 'text' : 'password';
+  toggleLlmKey.setAttribute('aria-label', visible ? 'Hide API key' : 'Show API key');
+  toggleLlmKey.setAttribute('aria-pressed', String(visible));
+  toggleLlmKey.querySelector('.icon-eye').style.display     = visible ? 'none' : '';
+  toggleLlmKey.querySelector('.icon-eye-off').style.display = visible ? ''     : 'none';
+}
+
+settingsBtn.addEventListener('click', () => {
+  if (settingsPanel.hidden) {
+    openSettings();
+  } else {
+    closeSettings();
+  }
+});
+
+toggleLlmKey.addEventListener('click', () => {
+  const isVisible = llmKeyInput.type === 'text';
+  setKeyVisible(!isVisible);
+});
+
+saveSettingsBtn.addEventListener('click', () => {
+  saveLlmKey(llmKeyInput.value.trim());
+  closeSettings();
+});
+
+cancelSettingsBtn.addEventListener('click', closeSettings);
+
+// Close settings panel when pressing Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !settingsPanel.hidden) {
+    closeSettings();
+  }
+});
+
 // ─── Submit handler ───────────────────────────────────────────────────────────
 inputForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -102,10 +173,14 @@ inputForm.addEventListener('submit', async (e) => {
   const typingBubble = appendMessage('assistant', '', true);
 
   try {
+    const body = { userId: getUserId(), message };
+    const llmKey = getLlmKey();
+    if (llmKey) body.llmKey = llmKey;
+
     const res = await fetch(ORCHESTRATOR_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: getUserId(), message }),
+      body: JSON.stringify(body),
     });
 
     if (!res.ok) {
