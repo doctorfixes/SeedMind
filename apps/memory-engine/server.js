@@ -54,7 +54,7 @@ function loadRing(userId) {
 }
 
 function persistRing(ring) {
-  stmtUpsert.run(ring.userId, JSON.stringify(ring), ring.updatedAt);
+  stmtUpsert.run(ring.userId, JSON.stringify(ring), ring.meta.last_updated ?? new Date().toISOString());
 }
 
 // ─── Express app ─────────────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ app.post('/api/memory/:userId', (req, res) => {
     const ring = loadRing(userId);
     const updated = mergeRingUpdate(ring, update);
     persistRing(updated);
-    return res.json({ version: updated.version, updatedAt: updated.updatedAt });
+    return res.json({ total_interactions: updated.meta.total_interactions, last_updated: updated.meta.last_updated });
   } catch (err) {
     console.error('[memory-engine] POST error:', err);
     return res.status(500).json({ error: 'Internal server error' });

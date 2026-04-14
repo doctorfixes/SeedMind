@@ -1,131 +1,113 @@
+'use strict';
+
 /**
  * @seedmind/shared
- * Shared growth-ring schema, constants, and utilities used by both
- * the orchestrator and the memory engine.
+ * Growth-ring schema, constants, and utilities shared by the orchestrator
+ * and the memory engine.
  */
 
-// ─── Growth-Ring Schema ───────────────────────────────────────────────────────
+const schema    = require('./growthRingSchema.json');
+const constants = require('./constants.js');
+
+// ─── Growth-Ring Factory ──────────────────────────────────────────────────────
 
 /**
- * Returns a fresh, empty growth-ring object for a new user.
+ * Returns a fresh growth ring for a new user, cloned from the canonical schema.
  * @param {string} userId
- * @returns {GrowthRing}
+ * @returns {import('@seedmind/types').GrowthRing}
  */
 function createGrowthRing(userId) {
   return {
     userId,
-    version: 1,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    preferences: {},   // key → value signals extracted from conversations
-    history: [],       // last N topic summaries
-    traits: {},        // derived personality / style traits
+    thinking_style: { ...schema.thinking_style },
+    domains:        { ...schema.domains },
+    output_shapes:  { ...schema.output_shapes },
+    meta: {
+      total_interactions: 0,
+      last_updated: null,
+      version: schema.meta.version,
+    },
   };
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
-const MAX_HISTORY_LENGTH = 20;
-
-const SYSTEM_PROMPT = `You are SeedMind, an adaptive brainstorming assistant.
-You learn from each conversation to better understand the user's thinking style,
-creative preferences, and domain interests.
-
-When responding:
-1. Generate rich, actionable brainstorming ideas.
-2. Ask clarifying questions only when genuinely needed.
-3. Adapt your tone and depth to match the user's communication style.
-4. Incorporate any provided growth-ring context to personalise your output.
-
-Output format:
-- Lead with a concise summary idea (1–2 sentences).
-- Follow with 3–7 numbered expansion points.
-- End with one open-ended follow-up question.`;
-
-// ─── Utilities ────────────────────────────────────────────────────────────────
+// ─── Ring Update ─────────────────────────────────────────────────────────────
 
 /**
- * Merges a partial preferences update into an existing growth ring.
- * @param {GrowthRing} ring
- * @param {object} update  Partial fields to merge in.
- * @returns {GrowthRing}   Updated ring (mutated in-place and returned).
+ * Applies a partial signals update to a growth ring (mutates and returns it).
+ * Each numeric group is decayed first, then the provided increments are added
+ * and clamped to [CLAMP_MIN, CLAMP_MAX].
+ *
+ * @param {import('@seedmind/types').GrowthRing} ring
+ * @param {{ thinking_style?: object, domains?: object, output_shapes?: object }} signals
+ * @returns {import('@seedmind/types').GrowthRing}
  */
-function mergeRingUpdate(ring, update) {
-  if (update.preferences) {
-    ring.preferences = { ...ring.preferences, ...update.preferences };
-  }
-  if (update.traits) {
-    ring.traits = { ...ring.traits, ...update.traits };
-  }
-  if (update.historyEntry) {
-    ring.history.push(update.historyEntry);
-    if (ring.history.length > MAX_HISTORY_LENGTH) {
-      ring.history = ring.history.slice(-MAX_HISTORY_LENGTH);
+function mergeRingUpdate(ring, signals) {
+  const { DECAY, CLAMP_MIN, CLAMP_MAX } = constants;
+  const groups = ['thinking_style', 'domains', 'output_shapes'];
+
+  for (const group of groups) {
+    if (!ring[group]) continue;
+
+    // Decay every existing signal.
+    for (const key of Object.keys(ring[group])) {
+      ring[group][key] = ring[group][key] * DECAY;
+    }
+
+    // Apply provided increments.
+    const incoming = signals?.[group];
+    if (incoming && typeof incoming === 'object') {
+      for (const [key, increment] of Object.entries(incoming)) {
+        if (typeof increment !== 'number') continue;
+        if (!(key in ring[group])) continue; // ignore unknown keys
+        ring[group][key] = Math.min(
+          CLAMP_MAX,
+          Math.max(CLAMP_MIN, ring[group][key] + increment),
+        );
+      }
     }
   }
-  ring.version += 1;
-  ring.updatedAt = new Date().toISOString();
+
+  ring.meta.total_interactions += 1;
+  ring.meta.last_updated = new Date().toISOString();
+
   return ring;
 }
 
+// ─── Prompt Context ───────────────────────────────────────────────────────────
+
 /**
- * Serialises a growth ring for injection into the LLM system prompt.
- * @param {GrowthRing} ring
+ * Serialises the top signals from a growth ring into a short context string
+ * that can be appended to the LLM system prompt.
+ *
+ * @param {import('@seedmind/types').GrowthRing} ring
  * @returns {string}
  */
 function ringToPromptContext(ring) {
-  const lines = [`User growth-ring context (v${ring.version}):`];
+  const interactions = ring?.meta?.total_interactions ?? 0;
+  const lines = [`Growth-ring context (${interactions} interactions):`];
 
-  if (Object.keys(ring.preferences).length) {
-    lines.push('Preferences: ' + JSON.stringify(ring.preferences));
-  }
-  if (Object.keys(ring.traits).length) {
-    lines.push('Traits: ' + JSON.stringify(ring.traits));
-  }
-  if (ring.history.length) {
-    lines.push('Recent topics: ' + ring.history.slice(-5).join(', '));
-  }
+  const top = (group) =>
+    Object.entries(ring[group] ?? {})
+      .filter(([, v]) => Math.abs(v) >= 0.05)
+      .sort(([, a], [, b]) => Math.abs(b) - Math.abs(a))
+      .slice(0, 4)
+      .map(([k, v]) => `${k}=${v.toFixed(2)}`)
+      .join(', ');
+
+  const ts = top('thinking_style');
+  const d  = top('domains');
+  const os = top('output_shapes');
+
+  if (ts) lines.push(`thinking_style: ${ts}`);
+  if (d)  lines.push(`domains: ${d}`);
+  if (os) lines.push(`output_shapes: ${os}`);
 
   return lines.join('\n');
-}
-
-/**
- * Extracts lightweight preference signals from an LLM response string.
- * Returns a partial update object suitable for mergeRingUpdate().
- * @param {string} userMessage  The original user message.
- * @param {string} llmResponse  The LLM's response text.
- * @returns {{ preferences?: object, traits?: object, historyEntry?: string }}
- */
-function extractSignals(userMessage, llmResponse) {
-  const update = {};
-
-  // Persist the topic as a short history entry.
-  const topic = userMessage.slice(0, 80).replace(/\s+/g, ' ').trim();
-  update.historyEntry = topic;
-
-  // Simple heuristic: detect explicit length/style preferences.
-  if (/\b(brief|short|concise|tl;?dr)\b/i.test(userMessage)) {
-    update.preferences = { responseLength: 'brief' };
-  } else if (/\b(detailed|deep.?dive|expand|thorough)\b/i.test(userMessage)) {
-    update.preferences = { responseLength: 'detailed' };
-  }
-
-  // Detect domain signals from the message.
-  const domains = ['tech', 'science', 'art', 'music', 'business', 'writing', 'design'];
-  for (const domain of domains) {
-    if (new RegExp(`\\b${domain}\\b`, 'i').test(userMessage)) {
-      update.traits = { ...(update.traits || {}), [`domain_${domain}`]: true };
-    }
-  }
-
-  return update;
 }
 
 module.exports = {
   createGrowthRing,
   mergeRingUpdate,
   ringToPromptContext,
-  extractSignals,
-  SYSTEM_PROMPT,
-  MAX_HISTORY_LENGTH,
+  ...constants,
 };

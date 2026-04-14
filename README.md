@@ -1,22 +1,26 @@
 # 🌱 SeedMind
 
-> An adaptive brainstorming system that learns from every conversation.
+> A tiny, adaptive brainstorming companion that learns your thinking style over time.
+
+SeedMind helps you think better by generating structured ideas, adding a twist, and asking a clarifying question — all while gradually adapting to your preferences through a transparent, safe memory model called **growth rings**.
+
+SeedMind is intentionally small, calm, and deterministic. It's a thinking tool, not a chatbot.
 
 ---
 
 ## Architecture
 
 ```
-Client → Orchestrator → LLM → Orchestrator → Memory Engine → Orchestrator → Client
+User → Client → Orchestrator → LLM → Orchestrator → Memory Engine → Orchestrator → Client
 ```
 
 | Service | Description | Hosting |
 |---|---|---|
 | `apps/client` | Static UI (HTML/CSS/JS) | Vercel Static |
 | `apps/orchestrator` | Serverless intelligence router | Vercel Serverless |
-| `apps/memory-engine` | Node + SQLite growth-ring store | Render (persistent disk) |
-| `packages/shared` | Shared schema, constants, utilities | — |
-| `packages/types` | JSDoc type definitions | — |
+| `apps/memory-engine` | Node + SQLite growth-ring store | Render / Fly / Railway |
+| `packages/shared` | Growth-ring schema, constants, utilities | — |
+| `packages/types` | TypeScript type definitions | — |
 
 ---
 
@@ -24,38 +28,139 @@ Client → Orchestrator → LLM → Orchestrator → Memory Engine → Orchestra
 
 ```
 seedmind/
+│
 ├── apps/
-│   ├── client/           # Static web UI
-│   ├── orchestrator/     # Serverless API — POST /ask
-│   └── memory-engine/    # Express + SQLite service
+│   ├── client/              # Vercel static site
+│   │   ├── index.html
+│   │   ├── script.js
+│   │   ├── styles.css
+│   │   └── vercel.json
+│   │
+│   ├── orchestrator/        # Vercel serverless API
+│   │   ├── api/
+│   │   │   └── ask.js
+│   │   ├── updateGrowthRings.js
+│   │   ├── extractSignals.js
+│   │   ├── package.json
+│   │   └── vercel.json
+│   │
+│   └── memory-engine/       # Render/Fly persistent service
+│       ├── server.js
+│       ├── package.json
+│       ├── Dockerfile
+│       ├── docker-compose.yml
+│       └── seedmind.db      # auto-created at runtime
+│
 ├── packages/
-│   ├── shared/           # Growth-ring schema, SYSTEM_PROMPT, utilities
-│   └── types/            # JSDoc type definitions
+│   ├── shared/
+│   │   ├── growthRingSchema.json
+│   │   ├── constants.js
+│   │   ├── index.js
+│   │   └── README.md
+│   │
+│   └── types/
+│       ├── index.d.ts
+│       ├── index.js
+│       └── README.md
+│
+├── .gitignore
+├── LICENSE
 └── README.md
+```
+
+---
+
+## How SeedMind Works
+
+### 1. User asks a question
+
+The client sends the message to the orchestrator.
+
+### 2. Orchestrator loads growth rings
+
+Growth rings store:
+- thinking style preferences (`analytical`, `creative`, `structured`, `exploratory`)
+- domain interests (`tech`, `science`, `art`, `business`, `writing`, `design`, `music`)
+- output format preferences (`brief`, `detailed`, `visual`, `narrative`, `listy`)
+- metadata (`total_interactions`, `last_updated`, `version`)
+
+### 3. Orchestrator calls the LLM
+
+It injects the SeedMind system prompt + the user message + the top growth-ring signals.
+
+The LLM returns structured JSON:
+
+```json
+{
+  "ideas":    ["...", "...", "...", "...", "..."],
+  "twist":    "...",
+  "question": "...",
+  "signals":  {
+    "thinking_style": { "analytical": 0.1 },
+    "domains":        { "tech": 0.08 }
+  }
+}
+```
+
+### 4. Growth rings update
+
+The orchestrator applies:
+1. **Decay** — multiply every signal by `0.98`
+2. **Add** — apply the LLM-returned deltas (`±0.05–0.15`)
+3. **Clamp** — keep all values in `[-1, 1]`
+4. **Meta** — increment `total_interactions`, update `last_updated`
+
+### 5. Memory engine persists the update
+
+SQLite stores the new growth rings.
+
+### 6. Client displays the brainstorm
+
+```
+💡 Ideas
+
+1. …
+2. …
+…
+
+🌀 Twist
+…
+
+❓ …
 ```
 
 ---
 
 ## Deployment
 
-### Step 1 — Push to GitHub
+### 1. Deploy the Memory Engine (Render / Fly / Railway)
 
-Push this repository to GitHub. Vercel will detect the monorepo automatically.
+**Path:** `apps/memory-engine`
 
----
+#### Option A — Render
 
-### Step 2 — Deploy the Memory Engine to Render
-
-1. Create a new **Web Service** on [Render](https://render.com).
-2. Root directory: `apps/memory-engine`
+1. Create a new **Web Service**
+2. Connect the repo, root directory: `apps/memory-engine`
 3. Build command: `npm install`
 4. Start command: `node server.js`
-5. Add a **Persistent Disk** mounted at `/app` (or set `DB_PATH` env var).
-6. Deploy → note your URL, e.g. `https://seedmind-memory.onrender.com`
+5. Add a **Persistent Disk** mounted at `/data`
+6. Set env var: `DB_PATH=/data/seedmind.db`
+7. Deploy
+
+#### Option B — Docker (any platform)
+
+```bash
+cd apps/memory-engine
+docker compose up -d
+```
+
+You now have: `https://seedmind-memory.onrender.com`
 
 ---
 
-### Step 3 — Deploy the Orchestrator to Vercel
+### 2. Deploy the Orchestrator (Vercel)
+
+**Path:** `apps/orchestrator`
 
 1. **Add New Project** → select `apps/orchestrator`
 2. Build command: `npm install`
@@ -68,41 +173,28 @@ Push this repository to GitHub. Vercel will detect the monorepo automatically.
 | `LLM_KEY` | Your OpenAI API key |
 | `LLM_MODEL` | `gpt-4o-mini` (or preferred model) |
 
-4. Deploy → note your URL, e.g. `https://seedmind-orchestrator.vercel.app`
+4. Deploy
+
+You now have: `https://seedmind-orchestrator.vercel.app/ask`
 
 ---
 
-### Step 4 — Deploy the Client to Vercel
+### 3. Deploy the Client (Vercel)
+
+**Path:** `apps/client`
 
 1. **Add New Project** → select `apps/client`
 2. Framework preset: **None**
-3. Output directory: *(leave as root)*
+3. Output directory: *(root)*
 4. Add environment variable:
 
 | Variable | Value |
 |---|---|
 | `ORCHESTRATOR_URL` | `https://seedmind-orchestrator.vercel.app/ask` |
 
-5. Deploy → your app is live at `https://seedmind.vercel.app`
+5. Deploy
 
----
-
-## How It Works — Growth Rings
-
-Each user has a **growth ring** — a lightweight JSON profile that accumulates:
-
-- **preferences** — detected style signals (e.g. `responseLength: 'brief'`)
-- **traits** — inferred domain interests (e.g. `domain_tech: true`)
-- **history** — the last 20 topic summaries
-
-On every request the orchestrator:
-
-1. Loads the ring from the memory engine
-2. Injects it into the LLM system prompt
-3. Extracts new signals from the exchange
-4. Saves the updated ring back
-
-This creates a feedback loop that makes every conversation more personalised.
+You now have: `https://seedmind.vercel.app`
 
 ---
 
@@ -112,37 +204,67 @@ This creates a feedback loop that makes every conversation more personalised.
 # Install all workspace dependencies
 npm install
 
-# Start the memory engine (port 3001)
-npm run dev:memory
+# Terminal 1 — Memory Engine (port 3001)
+cd apps/memory-engine
+node server.js
 
-# In another terminal — start the orchestrator (requires env vars)
+# Terminal 2 — Orchestrator
+cd apps/orchestrator
 MEMORY_URL=http://localhost:3001/api/memory \
 LLM_KEY=sk-... \
-npm run dev:orchestrator
+vercel dev
 
-# Serve the client statically
-npm run dev:client
+# Terminal 3 — Client (open directly or serve statically)
+cd apps/client
+open index.html
 ```
 
 ---
 
-## Environment Variables Reference
+## Growth Rings — Adaptive Memory Model
+
+Each user has a tiny, explainable JSON growth ring:
+
+```json
+{
+  "thinking_style": { "analytical": 0, "creative": 0, "structured": 0, "exploratory": 0 },
+  "domains":        { "tech": 0, "science": 0, "art": 0, "business": 0, "writing": 0, "design": 0, "music": 0, "other": 0 },
+  "output_shapes":  { "brief": 0, "detailed": 0, "visual": 0, "narrative": 0, "listy": 0 },
+  "meta": {
+    "total_interactions": 0,
+    "last_updated": null,
+    "version": "1.0"
+  }
+}
+```
+
+Every interaction applies:
+- **0.98 decay** — gradual forgetting
+- **±0.05–0.15 increments** — learning from each exchange
+- **clamping to [-1, 1]** — bounded, safe values
+- **metadata updates** — transparent history
+
+This keeps learning gradual, safe, reversible, and transparent.
+
+---
+
+## Environment Variables
 
 ### Orchestrator (`apps/orchestrator`)
 
-| Variable | Required | Description |
-|---|---|---|
-| `LLM_KEY` | ✅ | OpenAI API key |
-| `MEMORY_URL` | ✅ | Base URL of the memory engine |
-| `LLM_URL` | — | Defaults to OpenAI completions endpoint |
-| `LLM_MODEL` | — | Defaults to `gpt-4o-mini` |
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `LLM_KEY` | ✅ | — | OpenAI API key |
+| `MEMORY_URL` | ✅ | — | Base URL of the memory engine |
+| `LLM_URL` | — | OpenAI completions | LLM endpoint |
+| `LLM_MODEL` | — | `gpt-4o-mini` | Model name |
 
 ### Memory Engine (`apps/memory-engine`)
 
-| Variable | Required | Description |
-|---|---|---|
-| `PORT` | — | Defaults to `3001` |
-| `DB_PATH` | — | Path to SQLite file, defaults to `./seedmind.db` |
+| Variable | Required | Default | Description |
+|---|---|---|---|
+| `PORT` | — | `3001` | HTTP listen port |
+| `DB_PATH` | — | `./seedmind.db` | Path to SQLite database file |
 
 ---
 

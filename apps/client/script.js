@@ -12,7 +12,7 @@ const ORCHESTRATOR_URL =
 function getUserId() {
   let id = localStorage.getItem('seedmind_user_id');
   if (!id) {
-    id = 'u_' + Math.random().toString(36).slice(2, 11) + Date.now().toString(36);
+    id = 'u_' + crypto.randomUUID().replace(/-/g, '');
     localStorage.setItem('seedmind_user_id', id);
   }
   return id;
