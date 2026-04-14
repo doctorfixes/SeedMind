@@ -1,0 +1,30 @@
+{
+  "thinking_style": {
+    "analytical":   0,
+    "creative":     0,
+    "structured":   0,
+    "exploratory":  0
+  },
+  "domains": {
+    "tech":     0,
+    "science":  0,
+    "art":      0,
+    "business": 0,
+    "writing":  0,
+    "design":   0,
+    "music":    0,
+    "other":    0
+  },
+  "output_shapes": {
+    "brief":     0,
+    "detailed":  0,
+    "visual":    0,
+    "narrative": 0,
+    "listy":     0
+  },
+  "meta": {
+    "total_interactions": 0,
+    "last_updated": null,
+    "version": "1.0"
+  }
+}

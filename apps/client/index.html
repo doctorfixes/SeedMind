@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SeedMind — Adaptive Brainstorming</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1>🌱 SeedMind</h1>
+      <p class="tagline">Your adaptive brainstorming companion</p>
+    </header>
+
+    <main class="app-main">
+      <section class="chat-window" id="chatWindow" aria-live="polite" aria-label="Conversation">
+        <div class="message assistant">
+          <span class="bubble">
+            Hello! I'm SeedMind. Tell me what you'd like to brainstorm today. 🌱
+          </span>
+        </div>
+      </section>
+
+      <form class="input-row" id="inputForm" autocomplete="off">
+        <textarea
+          id="userInput"
+          class="user-input"
+          placeholder="What do you want to brainstorm?"
+          rows="2"
+          aria-label="Your brainstorm prompt"
+          required
+        ></textarea>
+        <button type="submit" class="send-btn" id="sendBtn" aria-label="Send">
+          ➤
+        </button>
+      </form>
+    </main>
+
+    <footer class="app-footer">
+      <small>SeedMind v1 &nbsp;·&nbsp; Powered by adaptive growth rings</small>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

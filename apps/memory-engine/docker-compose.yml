@@ -1,0 +1,23 @@
+services:
+  memory-engine:
+    build:
+      context: ../..
+      dockerfile: apps/memory-engine/Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - seedmind_data:/data
+    environment:
+      PORT: "3001"
+      DB_PATH: /data/seedmind.db
+      NODE_ENV: production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  seedmind_data:
+    driver: local

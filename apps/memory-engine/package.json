@@ -1,0 +1,17 @@
+{
+  "name": "seedmind-memory-engine",
+  "version": "1.0.0",
+  "private": true,
+  "main": "server.js",
+  "dependencies": {
+    "@seedmind/shared": "*",
+    "better-sqlite3": "^9.4.3",
+    "express": "^4.19.2"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
