@@ -158,43 +158,27 @@ You now have: `https://seedmind-memory.onrender.com`
 
 ---
 
-### 2. Deploy the Orchestrator (Vercel)
+### 2. Deploy the Client + Orchestrator (Vercel — unified)
 
-**Path:** `apps/orchestrator`
+The repository includes a root-level `vercel.json` that deploys the client and
+orchestrator as a **single Vercel project**. This resolves workspace package
+dependencies and ensures the theme CSS is available at deployment time.
 
-1. **Add New Project** → select `apps/orchestrator`
-2. Build command: `npm install`
-3. Add environment variables:
+1. **Add New Project** → connect the repository root (no subdirectory)
+2. Framework preset: **Other**
+3. Root directory: *(leave empty — use repo root)*
+4. Add environment variables:
 
 | Variable | Value |
 |---|---|
-| `MEMORY_URL` | `https://seedmind-memory.onrender.com/api/memory` |
-| `LLM_URL` | `https://api.openai.com/v1/chat/completions` |
 | `LLM_KEY` | Your OpenAI API key |
-| `LLM_MODEL` | `gpt-4o-mini` (or preferred model) |
-
-4. Deploy
-
-You now have: `https://seedmind-orchestrator.vercel.app/ask`
-
----
-
-### 3. Deploy the Client (Vercel)
-
-**Path:** `apps/client`
-
-1. **Add New Project** → select `apps/client`
-2. Framework preset: **None**
-3. Output directory: *(root)*
-4. Add environment variable:
-
-| Variable | Value |
-|---|---|
-| `ORCHESTRATOR_URL` | `https://seedmind-orchestrator.vercel.app/ask` |
+| `MEMORY_URL` | `https://seedmind-memory.onrender.com/api/memory` |
+| `LLM_URL` | `https://api.openai.com/v1/chat/completions` *(optional)* |
+| `LLM_MODEL` | `gpt-4o-mini` *(optional)* |
 
 5. Deploy
 
-You now have: `https://seedmind.vercel.app`
+You now have: `https://seedmind.vercel.app` (UI at `/`, API at `/ask`)
 
 ---
 
@@ -208,15 +192,11 @@ npm install
 cd apps/memory-engine
 node server.js
 
-# Terminal 2 — Orchestrator
-cd apps/orchestrator
+# Terminal 2 — Client + Orchestrator (unified, uses root vercel.json)
 MEMORY_URL=http://localhost:3001/api/memory \
 LLM_KEY=sk-... \
 vercel dev
-
-# Terminal 3 — Client (open directly or serve statically)
-cd apps/client
-open index.html
+# Opens on http://localhost:3000 — UI at / and API at /ask
 ```
 
 ---
