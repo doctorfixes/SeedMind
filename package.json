@@ -9,6 +9,9 @@
   "scripts": {
     "dev:client": "cd apps/client && npx serve .",
     "dev:orchestrator": "cd apps/orchestrator && node api/ask.js",
-    "dev:memory": "cd apps/memory-engine && node server.js"
+    "dev:memory": "cd apps/memory-engine && node server.js",
+    "test": "node --test packages/shared/__tests__/shared.test.js apps/orchestrator/__tests__/extractSignals.test.js apps/orchestrator/__tests__/updateGrowthRings.test.js",
+    "test:shared": "node --test packages/shared/__tests__/shared.test.js",
+    "test:orchestrator": "node --test apps/orchestrator/__tests__/extractSignals.test.js apps/orchestrator/__tests__/updateGrowthRings.test.js"
   }
 }
