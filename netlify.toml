@@ -1,0 +1,14 @@
+[build]
+  base = "apps/client"
+  command = "cp ../../packages/theme/tokens.css ./tokens.css"
+  publish = "."
+
+[[redirects]]
+  from = "/app"
+  to = "/app.html"
+  status = 200
+
+[[redirects]]
+  from = "/app/"
+  to = "/app.html"
+  status = 200
