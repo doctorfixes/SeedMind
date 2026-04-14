@@ -21,6 +21,7 @@
   "env": {
     "MEMORY_URL": "https://seedmind-memory.onrender.com/api/memory",
     "LLM_URL":    "https://api.openai.com/v1/chat/completions",
-    "LLM_KEY":    "@llm_key"
+    "LLM_KEY":    "@llm_key",
+    "LLM_MODEL":  "gpt-4o-mini"
   }
 }

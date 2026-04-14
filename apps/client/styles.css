@@ -1,7 +1,7 @@
 /* ─── Reset & Base ─────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Tokens are loaded from /packages/theme/tokens.css */
+/* Tokens are loaded from packages/theme/tokens.css (served at /packages/theme/tokens.css) */
 
 html, body {
   height: 100%;
