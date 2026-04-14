@@ -118,7 +118,7 @@ function formatBrainstorm(payload) {
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
 
-module.exports = async function handler(req, res) {
+const handler = async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -172,3 +172,6 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+module.exports = handler;
+module.exports.formatBrainstorm = formatBrainstorm;
