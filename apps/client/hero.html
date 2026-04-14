@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="description" content="SeedMind — an adaptive brainstorming companion that grows with you, powered by growth rings." />
+  <title>SeedMind — Adaptive Brainstorming Companion</title>
+  <link rel="stylesheet" href="../../packages/theme/tokens.css" />
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      font-size: var(--text-base);
+      line-height: var(--leading-normal);
+      background: var(--color-bg);
+      color: var(--color-text-primary);
+      overflow-x: hidden;
+    }
+
+    /* ─── Nav ──────────────────────────────────────────────────────────────── */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-8);
+      background: color-mix(in srgb, var(--color-header-bg) 92%, transparent);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid color-mix(in srgb, var(--color-border) 40%, transparent);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-header-text);
+      text-decoration: none;
+      letter-spacing: var(--tracking-wide);
+    }
+
+    .nav-logo .logo-icon {
+      font-size: var(--text-2xl);
+      line-height: 1;
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-5);
+      background: var(--color-primary-500);
+      color: var(--color-text-inverse);
+      border: none;
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: var(--transition-colors), var(--transition-transform);
+    }
+
+    .nav-cta:hover {
+      background: var(--color-primary-400);
+      transform: translateY(-1px);
+    }
+
+    .nav-cta:focus-visible {
+      outline: 2px solid var(--color-border-focus);
+      outline-offset: 2px;
+    }
+
+    /* ─── Hero ─────────────────────────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: calc(80px + var(--space-12)) var(--space-6) var(--space-12);
+      overflow: hidden;
+    }
+
+    /* Layered radial-gradient background */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%,
+          color-mix(in srgb, var(--color-primary-600) 28%, transparent) 0%,
+          transparent 70%),
+        radial-gradient(ellipse 60% 40% at 80% 80%,
+          color-mix(in srgb, var(--color-primary-400) 15%, transparent) 0%,
+          transparent 60%),
+        var(--color-bg);
+      z-index: 0;
+    }
+
+    /* Animated ring canvas */
+    .hero-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.35;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 720px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-1) var(--space-4);
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      letter-spacing: var(--tracking-wide);
+      text-transform: uppercase;
+      color: var(--color-primary-400);
+      background: color-mix(in srgb, var(--color-primary-600) 10%, transparent);
+      margin-bottom: var(--space-6);
+      animation: fade-up 0.6s var(--motion-easing-out) both;
+    }
+
+    .hero-badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: var(--radius-full);
+      background: var(--color-primary-400);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.75); }
+    }
+
+    .hero-headline {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: var(--leading-tight);
+      letter-spacing: var(--tracking-tight);
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-6);
+      animation: fade-up 0.6s 0.1s var(--motion-easing-out) both;
+    }
+
+    .hero-headline .accent {
+      background: linear-gradient(
+        135deg,
+        var(--color-primary-400) 0%,
+        var(--color-primary-600) 100%
+      );
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: var(--text-lg);
+      color: var(--color-text-secondary);
+      max-width: 520px;
+      margin: 0 auto var(--space-10);
+      line-height: var(--leading-relaxed);
+      animation: fade-up 0.6s 0.2s var(--motion-easing-out) both;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      animation: fade-up 0.6s 0.3s var(--motion-easing-out) both;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-4) var(--space-8);
+      background: var(--color-primary-600);
+      color: var(--color-text-inverse);
+      border: none;
+      border-radius: var(--radius-full);
+      font-size: var(--text-base);
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: var(--shadow-lg), 0 0 40px color-mix(in srgb, var(--color-primary-600) 40%, transparent);
+      transition: var(--transition-colors), var(--transition-transform), box-shadow var(--motion-duration-base) var(--motion-easing-default);
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-500);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg), 0 0 56px color-mix(in srgb, var(--color-primary-500) 50%, transparent);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:focus-visible {
+      outline: 2px solid var(--color-border-focus);
+      outline-offset: 3px;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-4) var(--space-8);
+      background: transparent;
+      color: var(--color-text-primary);
+      border: 1.5px solid var(--color-border-strong);
+      border-radius: var(--radius-full);
+      font-size: var(--text-base);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: var(--transition-colors), var(--transition-transform);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--color-primary-400);
+      color: var(--color-primary-400);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary:focus-visible {
+      outline: 2px solid var(--color-border-focus);
+      outline-offset: 3px;
+    }
+
+    /* ─── Social proof / stats ─────────────────────────────────────────────── */
+    .stats {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-8);
+      padding: var(--space-6) var(--space-6);
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+      margin: 0 var(--space-4);
+      animation: fade-up 0.6s 0.4s var(--motion-easing-out) both;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: var(--text-2xl);
+      font-weight: 800;
+      color: var(--color-text-primary);
+      letter-spacing: var(--tracking-tight);
+    }
+
+    .stat-label {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: var(--tracking-wide);
+      margin-top: var(--space-1);
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 40px;
+      background: var(--color-border-strong);
+    }
+
+    /* ─── Features Section ─────────────────────────────────────────────────── */
+    .features {
+      padding: var(--space-12) var(--space-6);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      text-align: center;
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-primary-400);
+      margin-bottom: var(--space-4);
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 800;
+      letter-spacing: var(--tracking-tight);
+      line-height: var(--leading-tight);
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-4);
+    }
+
+    .section-sub {
+      text-align: center;
+      font-size: var(--text-base);
+      color: var(--color-text-secondary);
+      max-width: 500px;
+      margin: 0 auto var(--space-10);
+      line-height: var(--leading-relaxed);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-5);
+    }
+
+    .feature-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-8);
+      transition: var(--transition-shadow), border-color var(--motion-duration-base) var(--motion-easing-default), transform var(--motion-duration-base) var(--motion-easing-default);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--color-primary-600), var(--color-primary-400));
+      opacity: 0;
+      transition: opacity var(--motion-duration-base) var(--motion-easing-default);
+    }
+
+    .feature-card:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: var(--color-border-strong);
+      transform: translateY(-4px);
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-icon {
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: color-mix(in srgb, var(--color-primary-600) 12%, transparent);
+      border: 1px solid color-mix(in srgb, var(--color-primary-400) 30%, transparent);
+      border-radius: var(--radius-lg);
+      font-size: 1.5rem;
+      margin-bottom: var(--space-5);
+    }
+
+    .feature-title {
+      font-size: var(--text-lg);
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .feature-desc {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-relaxed);
+    }
+
+    /* ─── How it works ──────────────────────────────────────────────────────── */
+    .how-it-works {
+      padding: var(--space-12) var(--space-6);
+      background: var(--color-surface);
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .how-inner {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-6);
+      counter-reset: step;
+    }
+
+    .step {
+      text-align: center;
+      padding: var(--space-6);
+      position: relative;
+    }
+
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-full);
+      background: linear-gradient(135deg, var(--color-primary-700), var(--color-primary-500));
+      color: var(--color-text-inverse);
+      font-size: var(--text-lg);
+      font-weight: 800;
+      margin: 0 auto var(--space-4);
+      box-shadow: 0 4px 16px color-mix(in srgb, var(--color-primary-600) 40%, transparent);
+    }
+
+    .step-title {
+      font-size: var(--text-base);
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .step-desc {
+      font-size: var(--text-sm);
+      color: var(--color-text-secondary);
+      line-height: var(--leading-relaxed);
+    }
+
+    /* ─── CTA Section ───────────────────────────────────────────────────────── */
+    .cta-section {
+      padding: var(--space-12) var(--space-6);
+      text-align: center;
+    }
+
+    .cta-inner {
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    .cta-inner .hero-headline {
+      font-size: clamp(1.75rem, 4vw, 2.75rem);
+      margin-bottom: var(--space-4);
+    }
+
+    .cta-inner .hero-sub {
+      margin-bottom: var(--space-8);
+    }
+
+    /* ─── Footer ────────────────────────────────────────────────────────────── */
+    .site-footer {
+      padding: var(--space-6) var(--space-8);
+      border-top: 1px solid var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+
+    .footer-logo {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      color: var(--color-text-secondary);
+      text-decoration: none;
+    }
+
+    .footer-copy {
+      font-size: var(--text-xs);
+      color: var(--color-text-secondary);
+    }
+
+    /* ─── Animations ────────────────────────────────────────────────────────── */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Scroll reveal ─────────────────────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.6s var(--motion-easing-out), transform 0.6s var(--motion-easing-out);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── Mobile ────────────────────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .nav { padding: var(--space-3) var(--space-4); }
+      .stat-divider { display: none; }
+      .stats { gap: var(--space-5); }
+      .feature-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ─── Reduced Motion ────────────────────────────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navigation ────────────────────────────────────────────────────────── -->
+  <nav class="nav" aria-label="Site navigation">
+    <a href="/" class="nav-logo" aria-label="SeedMind home">
+      <span class="logo-icon" aria-hidden="true">🌱</span>
+      SeedMind
+    </a>
+    <a href="app.html" class="nav-cta">
+      Launch App
+      <svg aria-hidden="true" focusable="false" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </a>
+  </nav>
+
+  <!-- ── Hero ──────────────────────────────────────────────────────────────── -->
+  <section class="hero" aria-labelledby="hero-headline">
+    <canvas class="hero-canvas" id="heroCanvas" aria-hidden="true"></canvas>
+
+    <div class="hero-content">
+      <div class="hero-badge" role="status">
+        <span class="dot" aria-hidden="true"></span>
+        Adaptive · Personalised · Open Source
+      </div>
+
+      <h1 class="hero-headline" id="hero-headline">
+        Brainstorm smarter<br>
+        with an AI that<br>
+        <span class="accent">grows with you</span>
+      </h1>
+
+      <p class="hero-sub">
+        SeedMind learns your thinking style through every conversation,
+        shaping its ideas to fit <em>you</em> — not the other way around.
+      </p>
+
+      <div class="hero-actions">
+        <a href="app.html" class="btn-primary">
+          <span>Start Brainstorming</span>
+          <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </a>
+        <a href="#how-it-works" class="btn-secondary">
+          How it works
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Stats ─────────────────────────────────────────────────────────────── -->
+  <div class="stats reveal" role="list" aria-label="Key statistics">
+    <div class="stat-item" role="listitem">
+      <div class="stat-value">5–7</div>
+      <div class="stat-label">Ideas per session</div>
+    </div>
+    <div class="stat-divider" aria-hidden="true"></div>
+    <div class="stat-item" role="listitem">
+      <div class="stat-value">3</div>
+      <div class="stat-label">Signal dimensions</div>
+    </div>
+    <div class="stat-divider" aria-hidden="true"></div>
+    <div class="stat-item" role="listitem">
+      <div class="stat-value">∞</div>
+      <div class="stat-label">Adaptations over time</div>
+    </div>
+    <div class="stat-divider" aria-hidden="true"></div>
+    <div class="stat-item" role="listitem">
+      <div class="stat-value">0</div>
+      <div class="stat-label">Account required</div>
+    </div>
+  </div>
+
+  <!-- ── Features ──────────────────────────────────────────────────────────── -->
+  <section class="features" aria-labelledby="features-title">
+    <p class="section-label reveal">Why SeedMind</p>
+    <h2 class="section-title reveal" id="features-title">
+      Intelligence that adapts.<br>Ideas that resonate.
+    </h2>
+    <p class="section-sub reveal">
+      Every message you send refines SeedMind's understanding of how you think,
+      so each reply feels like it was crafted just for you.
+    </p>
+
+    <div class="feature-grid" role="list">
+      <article class="feature-card reveal" role="listitem">
+        <div class="feature-icon" aria-hidden="true">🧠</div>
+        <h3 class="feature-title">Growth Ring Memory</h3>
+        <p class="feature-desc">
+          A lightweight preference model — your growth ring — decays stale signals
+          and amplifies fresh ones, keeping recommendations perpetually relevant.
+        </p>
+      </article>
+
+      <article class="feature-card reveal" role="listitem">
+        <div class="feature-icon" aria-hidden="true">💡</div>
+        <h3 class="feature-title">Structured Creativity</h3>
+        <p class="feature-desc">
+          Every response includes five to seven actionable ideas, a counterintuitive
+          twist, and a deepening question — giving you three layers of inspiration.
+        </p>
+      </article>
+
+      <article class="feature-card reveal" role="listitem">
+        <div class="feature-icon" aria-hidden="true">⚡</div>
+        <h3 class="feature-title">Instant &amp; Private</h3>
+        <p class="feature-desc">
+          No account, no sign-up. Your user ID lives locally in your browser.
+          Start brainstorming in seconds and keep your sessions entirely your own.
+        </p>
+      </article>
+
+      <article class="feature-card reveal" role="listitem">
+        <div class="feature-icon" aria-hidden="true">🎨</div>
+        <h3 class="feature-title">Style-Aware Output</h3>
+        <p class="feature-desc">
+          SeedMind tracks whether you prefer brief bullets or deep narratives,
+          visual thinking or analytical breakdowns — and calibrates accordingly.
+        </p>
+      </article>
+
+      <article class="feature-card reveal" role="listitem">
+        <div class="feature-icon" aria-hidden="true">🌐</div>
+        <h3 class="feature-title">Cross-Domain Intelligence</h3>
+        <p class="feature-desc">
+          Whether you're exploring tech, art, business, or science, the domain
+          signals in your ring steer ideas towards the areas you care about most.
+        </p>
+      </article>
+
+      <article class="feature-card reveal" role="listitem">
+        <div class="feature-icon" aria-hidden="true">🔓</div>
+        <h3 class="feature-title">Open Architecture</h3>
+        <p class="feature-desc">
+          Swap the underlying LLM, self-host the orchestrator, or extend the signal
+          schema. The entire stack is designed to be transparent and composable.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ── How it works ───────────────────────────────────────────────────────── -->
+  <section class="how-it-works" id="how-it-works" aria-labelledby="how-title">
+    <div class="how-inner">
+      <p class="section-label reveal">The process</p>
+      <h2 class="section-title reveal" id="how-title">How SeedMind works</h2>
+      <p class="section-sub reveal">
+        Three simple steps. One continuously improving companion.
+      </p>
+
+      <ol class="steps" role="list">
+        <li class="step reveal">
+          <div class="step-number" aria-hidden="true">1</div>
+          <h3 class="step-title">You share an idea</h3>
+          <p class="step-desc">
+            Type anything — a half-formed thought, a question, or a problem you're
+            stuck on. SeedMind listens without judgement.
+          </p>
+        </li>
+
+        <li class="step reveal">
+          <div class="step-number" aria-hidden="true">2</div>
+          <h3 class="step-title">SeedMind generates &amp; learns</h3>
+          <p class="step-desc">
+            The LLM produces structured ideas and extracts preference signals.
+            Your growth ring is updated in real time.
+          </p>
+        </li>
+
+        <li class="step reveal">
+          <div class="step-number" aria-hidden="true">3</div>
+          <h3 class="step-title">Ideas get sharper over time</h3>
+          <p class="step-desc">
+            As your ring matures, every prompt is enriched with your context —
+            so responses become more accurate, relevant, and inspiring.
+          </p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ── CTA ───────────────────────────────────────────────────────────────── -->
+  <section class="cta-section" aria-labelledby="cta-title">
+    <div class="cta-inner">
+      <h2 class="hero-headline reveal" id="cta-title">
+        Ready to plant<br>your first <span class="accent">seed</span>?
+      </h2>
+      <p class="hero-sub reveal">
+        It takes seconds to start. No account required — just open the app
+        and let your ideas grow.
+      </p>
+      <div class="hero-actions reveal">
+        <a href="app.html" class="btn-primary">
+          Open SeedMind
+          <svg aria-hidden="true" focusable="false" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ────────────────────────────────────────────────────────────── -->
+  <footer class="site-footer" role="contentinfo">
+    <a href="/" class="footer-logo" aria-label="SeedMind home">🌱 SeedMind</a>
+    <small class="footer-copy">
+      SeedMind v1 &nbsp;·&nbsp; Powered by adaptive growth rings
+    </small>
+  </footer>
+
+  <!-- ── Scripts ───────────────────────────────────────────────────────────── -->
+  <script>
+    'use strict';
+
+    /* ── Animated growth-ring canvas ───────────────────────────────────────── */
+    (function () {
+      const canvas = document.getElementById('heroCanvas');
+      if (!canvas || !canvas.getContext) return;
+
+      const ctx = canvas.getContext('2d');
+      let W, H, rings, raf;
+
+      const RING_COUNT = 6;
+      const BASE_COLOR = getComputedStyle(document.documentElement)
+        .getPropertyValue('--color-primary-400').trim() || '#4caf7d';
+
+      function resize() {
+        W = canvas.width  = canvas.offsetWidth;
+        H = canvas.height = canvas.offsetHeight;
+        if (!rings) initRings();
+      }
+
+      function initRings() {
+        rings = Array.from({ length: RING_COUNT }, (_, i) => ({
+          cx:     W / 2 + (Math.random() - 0.5) * W * 0.3,
+          cy:     H / 2 + (Math.random() - 0.5) * H * 0.3,
+          r:      60 + i * 80,
+          speed:  0.0002 + Math.random() * 0.0003,
+          phase:  Math.random() * Math.PI * 2,
+          opacity: 0.15 + (RING_COUNT - i) * 0.04,
+        }));
+      }
+
+      function draw(t) {
+        ctx.clearRect(0, 0, W, H);
+        for (const ring of rings) {
+          const pulse = Math.sin(t * ring.speed * 1000 + ring.phase) * 0.5 + 0.5;
+          const radius = ring.r * (0.9 + pulse * 0.15);
+          ctx.beginPath();
+          ctx.arc(ring.cx, ring.cy, radius, 0, Math.PI * 2);
+          ctx.strokeStyle = BASE_COLOR;
+          ctx.lineWidth = 1.5;
+          ctx.globalAlpha = ring.opacity * (0.6 + pulse * 0.4);
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        raf = requestAnimationFrame(draw);
+      }
+
+      const ro = new ResizeObserver(() => { resize(); });
+      ro.observe(canvas);
+      resize();
+      raf = requestAnimationFrame(draw);
+    }());
+
+    /* ── Scroll-reveal ─────────────────────────────────────────────────────── */
+    (function () {
+      const els = document.querySelectorAll('.reveal');
+      if (!('IntersectionObserver' in window)) {
+        els.forEach((el) => el.classList.add('visible'));
+        return;
+      }
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              io.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.12 },
+      );
+      els.forEach((el) => io.observe(el));
+    }());
+  </script>
+</body>
+</html>

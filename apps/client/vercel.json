@@ -2,10 +2,15 @@
   "version": 2,
   "name": "seedmind-client",
   "builds": [
-    { "src": "index.html", "use": "@vercel/static" }
+    { "src": "*.html", "use": "@vercel/static" },
+    { "src": "*.css",  "use": "@vercel/static" },
+    { "src": "*.js",   "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/app",  "dest": "/app.html" },
+    { "src": "/app/", "dest": "/app.html" },
+    { "src": "/",     "dest": "/hero.html" },
+    { "src": "/(.*)", "dest": "/$1" }
   ],
   "env": {
     "ORCHESTRATOR_URL": "https://seedmind-orchestrator.vercel.app/ask"
