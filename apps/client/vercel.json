@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "name": "seedmind-client",
+  "builds": [
+    { "src": "index.html", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/index.html" }
+  ],
+  "env": {
+    "ORCHESTRATOR_URL": "https://seedmind-orchestrator.vercel.app/ask"
+  }
+}

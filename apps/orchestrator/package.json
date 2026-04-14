@@ -1,0 +1,9 @@
+{
+  "name": "seedmind-orchestrator",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@seedmind/shared": "*",
+    "node-fetch": "^3.3.2"
+  }
+}
