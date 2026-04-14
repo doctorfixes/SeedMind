@@ -8,6 +8,10 @@ const ORCHESTRATOR_URL =
   (typeof window !== 'undefined' && window.ORCHESTRATOR_URL) ||
   'https://seedmind-orchestrator.vercel.app/ask';
 
+const MAX_MESSAGE_LENGTH = 4000;
+const CHAR_WARN_THRESHOLD = 3600;
+const CHAR_DANGER_THRESHOLD = 3900;
+
 // ─── Persistent user ID ───────────────────────────────────────────────────────
 function getUserId() {
   let id = localStorage.getItem('seedmind_user_id');
@@ -23,19 +27,57 @@ const chatWindow = document.getElementById('chatWindow');
 const inputForm  = document.getElementById('inputForm');
 const userInput  = document.getElementById('userInput');
 const sendBtn    = document.getElementById('sendBtn');
+const charCount  = document.getElementById('charCount');
 
 function appendMessage(role, text, isTyping = false) {
   const wrapper = document.createElement('div');
   wrapper.className = `message ${role}`;
+  wrapper.setAttribute('role', 'listitem');
 
   const bubble = document.createElement('span');
   bubble.className = 'bubble' + (isTyping ? ' typing' : '');
-  bubble.textContent = isTyping ? '' : text;
+
+  if (isTyping) {
+    bubble.setAttribute('aria-label', 'SeedMind is thinking…');
+  } else if (role === 'user') {
+    bubble.textContent = text;
+    bubble.setAttribute('aria-label', `You: ${text}`);
+  } else {
+    bubble.textContent = text;
+    bubble.setAttribute('aria-label', `SeedMind: ${text}`);
+  }
 
   wrapper.appendChild(bubble);
   chatWindow.appendChild(wrapper);
   chatWindow.scrollTop = chatWindow.scrollHeight;
   return bubble;
+}
+
+function setErrorBubble(bubble, message) {
+  bubble.classList.remove('typing');
+  bubble.classList.add('error');
+  bubble.textContent = message;
+  bubble.setAttribute('aria-label', `Error: ${message}`);
+}
+
+// ─── Character counter ────────────────────────────────────────────────────────
+function updateCharCount() {
+  const len = userInput.value.length;
+  if (len === 0) {
+    charCount.textContent = '';
+    charCount.className = 'char-count';
+    return;
+  }
+  const remaining = MAX_MESSAGE_LENGTH - len;
+  charCount.textContent = `${remaining} characters remaining`;
+
+  if (len >= CHAR_DANGER_THRESHOLD) {
+    charCount.className = 'char-count danger';
+  } else if (len >= CHAR_WARN_THRESHOLD) {
+    charCount.className = 'char-count warning';
+  } else {
+    charCount.className = 'char-count';
+  }
 }
 
 // ─── Submit handler ───────────────────────────────────────────────────────────
@@ -49,6 +91,7 @@ inputForm.addEventListener('submit', async (e) => {
   appendMessage('user', message);
   userInput.value = '';
   userInput.style.height = 'auto';
+  updateCharCount();
 
   // Disable controls while waiting
   sendBtn.disabled = true;
@@ -72,11 +115,12 @@ inputForm.addEventListener('submit', async (e) => {
     const data = await res.json();
     typingBubble.classList.remove('typing');
     typingBubble.textContent = data.response ?? '(empty response)';
+    typingBubble.setAttribute('aria-label', `SeedMind: ${typingBubble.textContent}`);
   } catch (err) {
-    typingBubble.classList.remove('typing');
-    typingBubble.textContent =
-      '⚠️ Something went wrong. Please try again.\n' + err.message;
-    typingBubble.style.color = '#c0392b';
+    setErrorBubble(
+      typingBubble,
+      '⚠️ Something went wrong. Please try again.\n' + err.message,
+    );
   } finally {
     sendBtn.disabled = false;
     userInput.disabled = false;
@@ -89,6 +133,7 @@ inputForm.addEventListener('submit', async (e) => {
 userInput.addEventListener('input', () => {
   userInput.style.height = 'auto';
   userInput.style.height = Math.min(userInput.scrollHeight, 160) + 'px';
+  updateCharCount();
 });
 
 // ─── Submit on Enter (Shift+Enter for newline) ────────────────────────────────

@@ -1,0 +1,201 @@
+/*
+ * @seedmind/theme — tokens.css
+ * Single source of truth for all design tokens.
+ * Import this file before any component stylesheets.
+ *
+ * Token taxonomy:
+ *   --color-*        Semantic color roles
+ *   --space-*        Spacing scale (4 px base)
+ *   --text-*         Font sizes
+ *   --leading-*      Line heights
+ *   --tracking-*     Letter spacings
+ *   --font-*         Font stacks
+ *   --radius-*       Border radii
+ *   --shadow-*       Box shadows
+ *   --motion-*       Durations and easings
+ */
+
+/* ─── Light Mode (Default) ─────────────────────────────────────────────────── */
+:root {
+  /* ── Primitive palette (reference only; prefer semantic tokens) ── */
+  --_green-900: #0d2318;
+  --_green-800: #1a3d2b;
+  --_green-700: #245237;
+  --_green-600: #2e7d52;
+  --_green-500: #3d9966;
+  --_green-400: #4caf7d;
+  --_green-300: #7ecb9f;
+  --_green-200: #b2d8bf;
+  --_green-100: #d4e8db;
+  --_green-50:  #e8f5ee;
+  --_white:     #ffffff;
+  --_neutral-900: #111827;
+  --_neutral-800: #1c2b22;
+  --_neutral-600: #607060;
+  --_neutral-500: #6b7280;
+  --_neutral-200: #e0ede5;
+  --_neutral-100: #f4faf6;
+  --_red-500:     #c0392b;
+  --_red-100:     #fdecea;
+  --_amber-500:   #d97706;
+  --_amber-100:   #fef3c7;
+
+  /* ── Color: Primary ── */
+  --color-primary-900: var(--_green-900);
+  --color-primary-800: var(--_green-800);
+  --color-primary-700: var(--_green-700);
+  --color-primary-600: var(--_green-600);
+  --color-primary-500: var(--_green-500);
+  --color-primary-400: var(--_green-400);
+  --color-primary-300: var(--_green-300);
+  --color-primary-200: var(--_green-200);
+  --color-primary-100: var(--_green-100);
+  --color-primary-50:  var(--_green-50);
+
+  /* ── Color: Surface & Background ── */
+  --color-surface:        var(--_white);
+  --color-surface-raised: var(--_white);
+  --color-bg:             var(--_neutral-100);
+  --color-bg-subtle:      var(--_green-50);
+
+  /* ── Color: Text ── */
+  --color-text-primary:   var(--_neutral-800);
+  --color-text-secondary: var(--_neutral-600);
+  --color-text-inverse:   var(--_white);
+  --color-text-disabled:  var(--_neutral-500);
+
+  /* ── Color: Border ── */
+  --color-border:         var(--_green-100);
+  --color-border-strong:  var(--_green-200);
+  --color-border-focus:   var(--_green-400);
+  --color-border-input:   var(--_green-200);
+
+  /* ── Color: Semantic roles ── */
+  --color-success:        var(--_green-600);
+  --color-success-subtle: var(--_green-50);
+  --color-warning:        var(--_amber-500);
+  --color-warning-subtle: var(--_amber-100);
+  --color-error:          var(--_red-500);
+  --color-error-subtle:   var(--_red-100);
+
+  /* ── Header / Nav specific ── */
+  --color-header-bg:   var(--_green-800);
+  --color-header-text: var(--_white);
+
+  /* ── User / Assistant bubble ── */
+  --color-bubble-user-bg:      var(--_green-600);
+  --color-bubble-user-text:    var(--_white);
+  --color-bubble-assistant-bg: var(--_white);
+  --color-bubble-assistant-text: var(--_neutral-800);
+  --color-bubble-assistant-border: var(--_green-100);
+
+  /* ── Spacing scale (4 px base) ── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ── Typography: Font stack ── */
+  --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  /* ── Typography: Size scale ── */
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  1.875rem;
+
+  /* ── Typography: Leading ── */
+  --leading-tight:   1.25;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.625;
+
+  /* ── Typography: Tracking ── */
+  --tracking-tight:  -0.01em;
+  --tracking-normal: 0em;
+  --tracking-wide:   0.02em;
+
+  /* ── Border Radius ── */
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ── */
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 24px rgba(0, 0, 0, 0.12);
+
+  /* ── Component sizes ── */
+  --size-touch-target: 44px;
+  --size-btn-md: 42px;
+
+  /* ── Motion ── */
+  --motion-duration-fast:  120ms;
+  --motion-duration-base:  200ms;
+  --motion-duration-slow:  350ms;
+  --motion-easing-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-easing-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --motion-easing-out:     cubic-bezier(0, 0, 0.2, 1);
+
+  /* ── Motion shorthand ── */
+  --transition-colors: color var(--motion-duration-base) var(--motion-easing-default),
+    background-color var(--motion-duration-base) var(--motion-easing-default),
+    border-color var(--motion-duration-base) var(--motion-easing-default);
+  --transition-transform: transform var(--motion-duration-fast) var(--motion-easing-spring);
+  --transition-shadow: box-shadow var(--motion-duration-base) var(--motion-easing-default);
+  --transition-opacity: opacity var(--motion-duration-base) var(--motion-easing-out);
+}
+
+/* ─── Dark Mode Overrides ──────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Surface & Background */
+    --color-surface:        #1e2d24;
+    --color-surface-raised: #243328;
+    --color-bg:             #141f18;
+    --color-bg-subtle:      #1a2a1f;
+
+    /* Text */
+    --color-text-primary:   #e2f0e7;
+    --color-text-secondary: #8faa97;
+    --color-text-inverse:   #0d2318;
+    --color-text-disabled:  #506358;
+
+    /* Border */
+    --color-border:         #2a3d30;
+    --color-border-strong:  #3a5244;
+    --color-border-focus:   var(--_green-400);
+    --color-border-input:   #2e4436;
+
+    /* Header */
+    --color-header-bg:   #0d2318;
+    --color-header-text: #c8e6d2;
+
+    /* Bubbles */
+    --color-bubble-user-bg:            var(--_green-700);
+    --color-bubble-user-text:          #e2f0e7;
+    --color-bubble-assistant-bg:       #1e2d24;
+    --color-bubble-assistant-text:     #e2f0e7;
+    --color-bubble-assistant-border:   #2a3d30;
+
+    /* Semantic */
+    --color-error:          #e05c4f;
+    --color-error-subtle:   #2d1a18;
+    --color-warning:        #f0a832;
+    --color-warning-subtle: #2d2210;
+
+    /* Shadows (softer in dark mode) */
+    --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 2px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 4px 24px rgba(0, 0, 0, 0.5);
+  }
+}
