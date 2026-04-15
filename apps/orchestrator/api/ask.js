@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * SeedMind Orchestrator — Vercel Serverless Function
+ * SeedMind Orchestrator — Netlify Serverless Function
  * Route: POST /ask
  *
  * Pipeline:

@@ -1,0 +1,4 @@
+# Netlify _redirects for SeedMind client
+# Explicit route rewrites are declared in the root netlify.toml.
+# This catch-all prevents 404s for any path not matched above.
+/*  /hero.html  200
