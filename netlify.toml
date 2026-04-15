@@ -1,0 +1,39 @@
+# Netlify configuration for SeedMind
+
+[build]
+  # Copy the shared design tokens into the client publish directory,
+  # then install all workspace dependencies so the Netlify Function
+  # bundler can resolve @seedmind/shared.
+  command = "npm install && cp packages/theme/tokens.css apps/client/tokens.css"
+  publish = "apps/client"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# ── Redirects ──────────────────────────────────────────────────────────────────
+
+# Serve hero page at the root URL (override index.html meta-refresh)
+[[redirects]]
+  from   = "/"
+  to     = "/hero.html"
+  status = 200
+  force  = true
+
+# Clean /app URL → app.html
+[[redirects]]
+  from   = "/app"
+  to     = "/app.html"
+  status = 200
+
+[[redirects]]
+  from   = "/app/"
+  to     = "/app.html"
+  status = 200
+
+# Proxy /ask to the Netlify Function
+[[redirects]]
+  from   = "/ask"
+  to     = "/.netlify/functions/ask"
+  status = 200
+  force  = true
