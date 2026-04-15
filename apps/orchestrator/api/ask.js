@@ -45,7 +45,7 @@ async function fetchJson(url, options) {
 async function loadRing(userId) {
   if (!MEMORY_URL) return createGrowthRing(userId);
   try {
-    return await fetchJson(`${MEMORY_URL}/${encodeURIComponent(userId)}`);
+    return await fetchJson(`${MEMORY_URL}/api/memory/${encodeURIComponent(userId)}`);
   } catch (err) {
     console.warn('[orchestrator] Could not load ring, using default:', err.message);
     return createGrowthRing(userId);
@@ -55,7 +55,7 @@ async function loadRing(userId) {
 async function saveRing(userId, signals) {
   if (!MEMORY_URL) return;
   try {
-    await fetchJson(`${MEMORY_URL}/${encodeURIComponent(userId)}`, {
+    await fetchJson(`${MEMORY_URL}/api/memory/${encodeURIComponent(userId)}`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(signals),
