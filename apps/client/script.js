@@ -2,7 +2,7 @@
 'use strict';
 
 // ─── Configuration ────────────────────────────────────────────────────────────
-// ORCHESTRATOR_URL defaults to /ask on the same Vercel deployment (unified
+// ORCHESTRATOR_URL defaults to /ask on the same Netlify deployment (unified
 // monorepo). Override by setting window.ORCHESTRATOR_URL before this script
 // loads (e.g. for a standalone orchestrator deployment).
 const ORCHESTRATOR_URL =
