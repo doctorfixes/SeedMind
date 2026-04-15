@@ -14,7 +14,7 @@
  *   7. Format and return the brainstorm to the client
  */
 
-const { SYSTEM_PROMPT, ringToPromptContext, createGrowthRing } = require('@seedmind/shared');
+const { SYSTEM_PROMPT, ringToPromptContext, createGrowthRing } = require('../../../packages/shared');
 const { extractSignals }    = require('../extractSignals');
 const { updateGrowthRings } = require('../updateGrowthRings');
 
