@@ -96,8 +96,10 @@ function extractSignals(rawText) {
  * @returns {import('@seedmind/types').LLMPayload}
  */
 function fallbackPayload(rawText) {
+  const ideas = [rawText.slice(0, 500)];
+  while (ideas.length < 5) ideas.push('(idea not provided)');
   return {
-    ideas:    [rawText.slice(0, 500)],
+    ideas,
     twist:    '',
     question: '',
     signals:  {},

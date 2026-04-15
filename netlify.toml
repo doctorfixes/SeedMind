@@ -1,0 +1,7 @@
+[build]
+  publish = "apps/client"
+  command = "cp ../../packages/theme/tokens.css ./tokens.css 2>/dev/null; cp packages/theme/tokens.css apps/client/tokens.css 2>/dev/null; true"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
