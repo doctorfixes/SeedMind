@@ -67,12 +67,12 @@ async function saveRing(userId, signals) {
 
 // ─── LLM call ─────────────────────────────────────────────────────────────────
 
-async function callLLM(systemPrompt, userMessage) {
+async function callLLM(systemPrompt, userMessage, llmKey) {
   const data = await fetchJson(LLM_URL, {
     method:  'POST',
     headers: {
       'Content-Type':  'application/json',
-      'Authorization': `Bearer ${LLM_KEY}`,
+      'Authorization': `Bearer ${llmKey}`,
     },
     body: JSON.stringify({
       model:       LLM_MODEL,
@@ -127,7 +127,7 @@ const handler = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST')   return res.status(405).json({ error: 'Method not allowed' });
 
-  const { userId, message } = req.body || {};
+  const { userId, message, llmKey: clientLlmKey } = req.body || {};
 
   if (!userId || typeof userId !== 'string' || userId.length > 128) {
     return res.status(400).json({ error: 'Invalid or missing userId' });
@@ -137,6 +137,15 @@ const handler = async function handler(req, res) {
   }
   if (message.length > 4000) {
     return res.status(400).json({ error: 'Message too long (max 4000 chars)' });
+  }
+  if (clientLlmKey !== undefined && (typeof clientLlmKey !== 'string' || clientLlmKey.length > 256)) {
+    return res.status(400).json({ error: 'Invalid llmKey' });
+  }
+
+  // Prefer client-supplied key (BYOK) over the server env var
+  const effectiveLlmKey = (clientLlmKey && clientLlmKey.trim()) || LLM_KEY;
+  if (!effectiveLlmKey) {
+    return res.status(503).json({ error: 'No LLM API key configured. Please provide one in Settings.' });
   }
 
   try {
@@ -148,7 +157,7 @@ const handler = async function handler(req, res) {
     const systemPrompt = `${SYSTEM_PROMPT}\n\n${ringContext}`;
 
     // 3. Call LLM
-    const rawLLMText = await callLLM(systemPrompt, message.trim());
+    const rawLLMText = await callLLM(systemPrompt, message.trim(), effectiveLlmKey);
 
     // 4. Extract signals from structured response
     const { payload, parseError } = extractSignals(rawLLMText);
