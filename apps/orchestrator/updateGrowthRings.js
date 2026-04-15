@@ -13,7 +13,7 @@
  * @seedmind/shared, provided as a named module for testability and clarity.
  */
 
-const { mergeRingUpdate } = require('@seedmind/shared');
+const { mergeRingUpdate } = require('../../packages/shared');
 
 /**
  * @param {import('@seedmind/types').GrowthRing}   ring

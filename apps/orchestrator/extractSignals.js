@@ -12,7 +12,7 @@
  * orchestrator never crashes due to a malformed LLM response.
  */
 
-const { MIN_INCREMENT, MAX_INCREMENT } = require('@seedmind/shared');
+const { MIN_INCREMENT, MAX_INCREMENT } = require('../../packages/shared');
 
 const VALID_GROUPS = ['thinking_style', 'domains', 'output_shapes'];
 const VALID_KEYS = {

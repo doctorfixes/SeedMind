@@ -4,7 +4,7 @@ const { describe, it, mock, beforeEach } = require('node:test');
 const assert = require('node:assert/strict');
 
 const { updateGrowthRings } = require('../updateGrowthRings.js');
-const { createGrowthRing } = require('@seedmind/shared');
+const { createGrowthRing } = require('../../../packages/shared');
 
 // ─── updateGrowthRings ────────────────────────────────────────────────────────
 
