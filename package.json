@@ -2,17 +2,13 @@
   "name": "seedmind",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
     "dev:client": "cd apps/client && npx serve .",
     "dev:orchestrator": "cd apps/orchestrator && node api/ask.js",
     "dev:memory": "cd apps/memory-engine && node server.js",
-    "test": "node --test packages/shared/__tests__/shared.test.js apps/orchestrator/__tests__/extractSignals.test.js apps/orchestrator/__tests__/updateGrowthRings.test.js apps/orchestrator/__tests__/ask.test.js apps/memory-engine/__tests__/server.test.js",
-    "test:shared": "node --test packages/shared/__tests__/shared.test.js",
+    "test": "node --test packages/shared/__tests__/shared.test.js packages/shared/__tests__/shared.expanded.test.js apps/orchestrator/__tests__/extractSignals.test.js apps/orchestrator/__tests__/extractSignals.expanded.test.js apps/orchestrator/__tests__/updateGrowthRings.test.js apps/orchestrator/__tests__/ask.test.js apps/memory-engine/__tests__/server.test.js apps/memory-engine/__tests__/server.expanded.test.js",
+    "test:shared": "node --test packages/shared/__tests__/shared.test.js packages/shared/__tests__/shared.expanded.test.js",
     "test:orchestrator": "node --test apps/orchestrator/__tests__/extractSignals.test.js apps/orchestrator/__tests__/updateGrowthRings.test.js apps/orchestrator/__tests__/ask.test.js",
-    "test:memory": "node --test apps/memory-engine/__tests__/server.test.js"
+    "test:memory": "node --test apps/memory-engine/__tests__/server.test.js apps/memory-engine/__tests__/server.expanded.test.js"
   }
 }
